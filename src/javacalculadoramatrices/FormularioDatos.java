@@ -19,6 +19,8 @@ public class FormularioDatos extends javax.swing.JFrame {
     String DatosAuxiliar[][];
     int FilasM1; int FilasM2;  int ColumnasM1; int ColumnasM2;
     Double Resultado[][];
+    String Resultado2[][];
+
 
     void MuestraMensaje(String msm,String titulo)
     {
@@ -70,6 +72,7 @@ public class FormularioDatos extends javax.swing.JFrame {
         JBotonLimpiarM2 = new javax.swing.JButton();
         JBotonAdjuntaM1 = new javax.swing.JButton();
         JBotonAdjuntaM2 = new javax.swing.JButton();
+        JBotonEsquinaMatriz = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(java.awt.Color.lightGray);
@@ -225,7 +228,7 @@ public class FormularioDatos extends javax.swing.JFrame {
         JPanelM2.setBounds(690, 150, 525, 400);
 
         JLabelTitulo.setFont(new java.awt.Font("Times New Roman", 3, 50)); // NOI18N
-        JLabelTitulo.setText("Calculadora Matrices V1.0");
+        JLabelTitulo.setText("Calculadora Matrices V2.0");
         getContentPane().add(JLabelTitulo);
         JLabelTitulo.setBounds(344, 11, 590, 46);
 
@@ -408,6 +411,18 @@ public class FormularioDatos extends javax.swing.JFrame {
         });
         getContentPane().add(JBotonAdjuntaM2);
         JBotonAdjuntaM2.setBounds(690, 110, 150, 25);
+
+        JBotonEsquinaMatriz.setBackground(java.awt.Color.lightGray);
+        JBotonEsquinaMatriz.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        JBotonEsquinaMatriz.setText("Esquina");
+        JBotonEsquinaMatriz.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        JBotonEsquinaMatriz.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                JBotonEsquinaMatrizActionPerformed(evt);
+            }
+        });
+        getContentPane().add(JBotonEsquinaMatriz);
+        JBotonEsquinaMatriz.setBounds(560, 270, 120, 25);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -850,6 +865,24 @@ public class FormularioDatos extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_JBotonInversaM2ActionPerformed
 
+    private void JBotonEsquinaMatrizActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBotonEsquinaMatrizActionPerformed
+        // TODO add your handling code here:
+        if(ClaseOperaciones.Aprobar(jTable1, FilasM1, ColumnasM1))
+        {
+            Resultado2=ClaseOperaciones.esquina_noroeste(jTable1, FilasM1, ColumnasM1);
+        DialogoResultado f=new DialogoResultado(new javax.swing.JFrame(),true,Resultado2,FilasM1,ColumnasM1);
+                f.setLocationRelativeTo(null);
+                f.JText.setText("Metodo Esquina Noroeste");
+                f.JText1.setText("Costo Total: "+ClaseOperaciones.CostoTotal.toString());
+                f.show();
+            }
+            else
+            {
+                MuestraMensaje("Proximamente se aceptara mas tipos de Valores ( ͡° ͜ʖ ͡°)","==>Matriz 2 Invalida ( ͡° ͜ʖ ͡°)");
+            }                                              
+
+    }//GEN-LAST:event_JBotonEsquinaMatrizActionPerformed
+
     
     /**
      * @param args the command line arguments
@@ -899,6 +932,7 @@ public class FormularioDatos extends javax.swing.JFrame {
     private javax.swing.JButton JBotonDeterminanteM2;
     private javax.swing.JButton JBotonEliminaFilaM1;
     private javax.swing.JButton JBotonEliminaFilaM2;
+    private javax.swing.JButton JBotonEsquinaMatriz;
     private javax.swing.JButton JBotonInversaM1;
     private javax.swing.JButton JBotonInversaM2;
     private javax.swing.JButton JBotonLLenarM1;

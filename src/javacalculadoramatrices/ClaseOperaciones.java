@@ -14,6 +14,8 @@ public class ClaseOperaciones
 {
      private static DefaultTableModel modelo;
      
+     public static Double CostoTotal=0.0;
+     
     public static void LimpiaTabla(JTable Tabla,int fila,int columna)
     {
             modelo=new DefaultTableModel();
@@ -350,4 +352,95 @@ public class ClaseOperaciones
             }
         }
     }   
+    
+    
+    //Metodos para Esquina Noroeste
+    
+    //Metodo Para llenat el JTable
+    public static void  LlenaTablaResultado(JTable Tabla,String[][] resultado,int fila,int columna)
+    {
+        for (int i = 0; i < fila; i++) 
+        {
+            for (int j = 0; j < columna; j++) {
+                Tabla.setValueAt(resultado[i][j], i, j);
+            }
+        }
+    }   
+    
+
+    public static String[][] esquina_noroeste(JTable Tabla1,int o,int d){
+        String Retorno[][] =new String[o][d];
+        
+        
+        Double [][] Original=ObtenerMatriz(Tabla1, o, d);
+            
+        double b[][]=new double[o][d]; //se crea una matriz que alberga el resultado de las unidades que se calculan en cada paso del metodo noroeste
+        for(int i=0;i<o;i++){ //se hace el recorrido por las filas de la matriz 
+            b[i][d-1]=Original[i][d-1]; //para vaciar los valores de las ofertas en otra matriz 
+        }
+         for(int i=0;i<d;i++){ //se hace el recorrido por las columnas de la matriz 
+            b[o-1][i]=Original[o-1][i]; //para vaciar los valores de las demandas en otra matriz 
+        }
+        int pos=0;int c2=0;
+        for(int i=0;i<o;i++){ //se recorren las filas 
+            for(int j=pos;j<d;j++){//se buscan recorrer las columnas
+                if(b[i][d-1]==b[o-1][j]){ //lo que se muestra en la oferta es igual a lo que se muestra en la primera demanda. 
+                    b[i][j]=b[i][d-1]; //Se coloca en la esquina  el valor de la oferta 
+                    b[i][d-1]=0; //La ultima oferta queda satisfecha 
+                    b[o-1][j]=0; //La última demanda queda satisfecha 
+                    if(i == o-2 && j == o-2){
+                      pos=j;c2=1; //La posición de la columna se queda tal y como está, y se manda a activar el fin de ciclo I
+                      break; //se sale del ciclo J 
+                    }
+                    else{
+                      i++;  
+                    }
+                    
+                    
+                }else{//cuando no es así y 
+                    if(b[i][d-1]<b[o-1][j]){//y la oferta en turno es menor que la demanda 
+                             
+                        b[o-1][j]=b[o-1][j]-b[i][d-1]; //el valor nuevo es la diferencia de la demanda con respecto a la oferta.
+                        b[i][j]=b[i][d-1]; //se coloca en la esquina  el valor de la demanda completa de la columna.
+                        b[i][d-1]=0; //se quita toda la oferta de esa fuente debido a que se ha cumplido. 
+                        pos=j; //se conserva la posición de la columna, se pivotea debido a que esto indica que no se tiene que recorrer las columnas anexas aún
+                        break; //para evadir el incremento de j en este turno 
+                    }else{ //sino si la oferta en turno es mayor que la demanda
+                        b[i][d-1]=b[i][d-1]-b[o-1][j];  //el valor nuevo es la diferencia de la oferta con respecto a la demanda.
+                        b[i][j]=b[o-1][j]; //se coloca en la esquina  el valor de la oferta completa del renglón
+                        b[o-1][j]=0; //se quita toda la demanda de ese destino debido a que se ha cumplido. 
+                    }
+                    
+                } //Para este punto todavia se está en en el ciclo de J 
+            }
+            if(c2==1){break;} //se sale del ciclo I 
+        }  
+            
+            
+                double su=0; //Sumatoria del costo total 
+    
+            
+            
+        //Pasamos a Syting
+        
+          for (int i = 0; i < o; i++) 
+        {
+            for (int j = 0; j < d; j++) 
+            {
+                 if(b[i][j]!=0){//Si el valor encontrado es diferente de cero, se muestra en la pantalla 
+                    
+             Retorno[i][j]="[ "+b[i][j]+" , "+Original[i][j]+" ]";
+             su=su+b[i][j]*Original[i][j];
+            }else{
+             Retorno[i][j]="[ 0.0 , "+Original[i][j]+" ]";
+             }
+            }
+        }
+          CostoTotal=su;
+        return Retorno;
+    }
+
+    
+    
+    
 }
