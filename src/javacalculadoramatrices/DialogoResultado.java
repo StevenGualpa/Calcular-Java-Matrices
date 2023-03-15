@@ -39,8 +39,8 @@ public class DialogoResultado extends javax.swing.JDialog {
         this.Resultado2=M;
         this.fila=f;
         this.columna=c;
-        ClaseOperaciones.LimpiaTabla(jTable1, fila-1, columna-1);
-        ClaseOperaciones.LlenaTablaResultado(jTable1, Resultado2, fila-1, columna-1);
+        ClaseOperaciones.LimpiaTabla(jTable1, fila, columna);
+        ClaseOperaciones.LlenaTablaResultado(jTable1, Resultado2, fila, columna);
     }
 
     /**

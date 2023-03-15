@@ -549,6 +549,82 @@ public class FormularioDatos extends javax.swing.JFrame {
     }//GEN-LAST:event_jTable1KeyTyped
 
     
+    //COMPROBAR 
+     public double []comprobar(Double m[][],int o,int d){
+        double v[]=new double[4]; //se crea un vector conformado por un arreglo de 4 posiciones
+        double so=0,sd=0; //sumatorias de oferta y demanda
+        for(int i=0;i<o;i++){ //con este ciclo se suman los valores de las ofertas
+            so=so+m[i][d-1]; 
+        }
+        for(int i=0;i<d;i++){ // con este ciclo se suman los valores de las demandas
+            sd=sd+m[o-1][i];
+        }
+        if(sd!=so){ //si la sumatoria de la demanda es diferente de la sumatoria de la oferta y 
+            //145  45
+            if(sd>so){ //además la supera 
+                o=o+1;//se compensa esto dando un ofertante más  para compensar la demanda. 
+            }else{ //(Si la sumatoria de la oferta es superior a la sumatoria de la demanda)
+                d=d+1;//se compensa esto dando un demandante más para cubrir la oferta
+            }
+        }
+        if(sd!=so){
+            v[0]=o; //se envia la cantidad de ofertantes, depende si se haya aumentado un ofertante o no. 
+            v[1]=d; //se envia la cantidad de demandantes, depende si se haya aumentado un ofertante o no.
+            v[2]=so; //se envia al vector la sumatoria de oferta para poderla mover a la columna siguiente.
+            v[3]=sd; // se envia al vector la sumatoria de demanda para poderla mover a la fila siguiente.
+        }else{
+            v[0]=o; //se queda igual la cantidad de ofertantes
+            v[1]=d; //se queda igual la cantidad de demandantes
+            v[2]=0; //se queda la posición de la sumatoria de oferta tal como está, porque no hay cambios. 
+            v[3]=0; //se queda la posición de la sumatoria de demanda tal como está, porque no hay cambios. 
+        }
+        return v; 
+    }
+    
+     //Se recompila matriz
+     public Double[][]crear_nueva_matriz(Double m[][],int o,int d,double so,double sd){
+        Double sobra=0.0;int i1=0,j1=0;
+        Double m1[][]=new Double[o][d]; // se inicia otro arreglo bidimensional para crear la nueva matrix
+        System.out.println(sd+"   "+so);
+        if(sd>so){ //como la demanda supera la oferta se necesita agregar otro ofertante
+            sobra=sd-so; //la diferencia entre la demanda y la oferta. 
+            m1[o-2][d-1]=sobra; //se coloca el valor de la sobra que es la demanda faltante a cubrir 
+            for(int i=0;i<o;i++){ //se inicia el recorrido en todas las filas de la matriz nueva
+                j1=0; //jl tiene el lugar de las columnas "d" de la matriz original: "m"
+                if(i!=o-2){ //esto es para evitar que toda la fila nueva agregada (la oferta compensatoria) se modifique
+                    for(int j=0;j<d;j++){ //recorrido a través de las columnas. 
+                        m1[i][j]=m[i1][j1];//se colocan en la matriz nueva los valores que tenia la matrix original
+                        j1++; //Se incrementa el valor del indice, para seguir recorriendo las columnas de la matriz original. 
+                    }i1++; // se incrementa el valor del indice para seguir recorriendo las filas de la matriz original
+                }
+            }
+            
+        }else{ //como la oferta supera la demanda se necesita agregar otro ofertante
+            sobra=so-sd; //la diferencia entre la oferta y la demanda. 
+            m1[o-1][d-2]=sobra; //se coloca el valor de la sobra que es la oferta faltante a cubrir 
+            for(int i=0;i<o;i++){ //se inicia el recorrido en todas las filas de la matriz nueva
+                j1=0; //jl tiene el lugar de las columnas "d" de la matriz original: "m"
+                for(int j=0;j<d;j++){ //recorrido a través de las columnas. 
+                    if(j!=d-2){ //esto es para evitar que toda la columna nueva agregada (la demanda compensatoria) se modifique
+                        m1[i][j]=m[i1][j1]; //se colocan en la matriz nueva los valores que tenia la matrix original
+                        j1++; //Se incrementa el valor del indice, para seguir recorriendo las columnas de la matriz original. 
+                    }
+                }
+                i1++; // se incrementa el valor del indice para seguir recorriendo las filas de la matriz original
+            }
+        }
+        /*
+         mo.setRowCount(o); //se obtienen la cuenta de filas 
+        mo.setColumnCount(d); //se obtienen la cuenta de columnas
+        
+        for(int i=0;i<o;i++){
+            for(int j=0;j<d;j++){
+                jTable1.setValueAt(m1[i][j], i, j); //se vacian los datos de la matriz nueva a la tabla
+            }
+        }*/
+        return m1;
+    }
+     
     //Operaciones
     private void JBotonSumaMatrizActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBotonSumaMatrizActionPerformed
         
@@ -869,12 +945,39 @@ public class FormularioDatos extends javax.swing.JFrame {
         // TODO add your handling code here:
         if(ClaseOperaciones.Aprobar(jTable1, FilasM1, ColumnasM1))
         {
-            Resultado2=ClaseOperaciones.esquina_noroeste(jTable1, FilasM1, ColumnasM1);
-        DialogoResultado f=new DialogoResultado(new javax.swing.JFrame(),true,Resultado2,FilasM1,ColumnasM1);
-                f.setLocationRelativeTo(null);
-                f.JText.setText("Metodo Esquina Noroeste");
-                f.JText1.setText("Costo Total: "+ClaseOperaciones.CostoTotal.toString());
-                f.show();
+            Double [][] Original=ClaseOperaciones.ObtenerMatriz(jTable1, FilasM1, ColumnasM1);
+            double v[]=comprobar(Original,FilasM1, ColumnasM1);
+            
+        //Una vez comprobado que la sumatoria de demanda y la de oferta son iguales o no 
+        int o=(int)(v[0]); //Se necesita la cantidad de ofertantes debido a que se van a pasar a la siguiente matriz
+        //o para realizar el calculo del costo total. 
+        int d=(int)(v[1]);//Se necesita la cantidad de demandantes debido a que se van a pasar a la siguiente matriz
+        //d para realizar el calculo del costo total. 
+        double so=0,sd=0;
+        so=v[2]; //Se capturan las sumatorias de las ofertas de ser necesario aplicar una compensación de oferta y demanda
+        sd=v[3];
+        //System.out.println(o+" "+d);
+        if(so!=sd){ //Si las sumatorias no fueran iguales, se tiene que crear una matriz que compense esto.
+        Double m2[][]=crear_nueva_matriz(Original,o,d,so,sd);
+        ClaseOperaciones.LimpiaTabla(jTable2, o, d);
+        ClaseOperaciones.LlenaTablaResultado(jTable2, m2, o, d);
+           Resultado2=ClaseOperaciones.esquina_noroeste(jTable2, o, d);
+        
+            DialogoResultado f=new DialogoResultado(new javax.swing.JFrame(),true,Resultado2,o,d);
+            
+            f.setLocationRelativeTo(null);
+            
+            f.JText.setText("Metodo Esquina Noroeste");
+            
+            f.JText1.setText("Costo Total: "+ClaseOperaciones.CostoTotal.toString());
+            
+            f.show();
+        }else{
+                    SinAdicionar();
+
+        }
+      
+          
             }
             else
             {
@@ -883,6 +986,20 @@ public class FormularioDatos extends javax.swing.JFrame {
 
     }//GEN-LAST:event_JBotonEsquinaMatrizActionPerformed
 
+    public void SinAdicionar()
+    {
+          Resultado2=ClaseOperaciones.esquina_noroeste(jTable1, FilasM1, ColumnasM1);
+        
+            DialogoResultado f=new DialogoResultado(new javax.swing.JFrame(),true,Resultado2,FilasM1,ColumnasM1);
+            
+            f.setLocationRelativeTo(null);
+            
+            f.JText.setText("Metodo Esquina Noroeste");
+            
+            f.JText1.setText("Costo Total: "+ClaseOperaciones.CostoTotal.toString());
+            
+            f.show();
+    }
     
     /**
      * @param args the command line arguments
